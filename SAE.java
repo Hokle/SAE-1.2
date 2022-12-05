@@ -13,7 +13,7 @@ class SAE extends Program{
             }
         }
         return inv;
-    }
+    }penis
 
     int[] RechercheCaseVide(char [][] inventaire){
         int[] tab = new int[2];
