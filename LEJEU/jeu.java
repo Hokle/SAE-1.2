@@ -32,20 +32,60 @@ class jeu extends Program{
         if (choixMenu == 1) {
 
             print("Insérez votre pseudonyme : ");
-            Score joueur = creerScore(readString(), 0);
-
+            Joueur j1 = creerJoueur(readString(), 100, 0);
             inventaire inv = NewInvVide();
             remplissageAleatoire(inv);
             ajouterNombre(nombreRandom(), inv);
+            int scoreGame = 0;
 
-            ///Boucle de chaque boss
-            String bossSelected = choixBossRdm();
-            Boss boss = creerBoss(bossSelected);
-                ///Boucle de chaque tour
-                printBoss(boss, initPrintBoss(bossSelected));
-
-            affichageInv(inv);
-
+            while (j1.pv > 0) {
+                String bossSelected = choixBossRdm();
+                Boss boss = creerBoss(bossSelected);
+                while(boss.pv > 0 && j1.pv > 0) {
+                    printBoss(boss, initPrintBoss(bossSelected));
+                    affichageInv(inv);
+                    println("Il reste " + j1.pv + " points de vie pour " + j1.pseudo + ", survivez le plus longtemps !");
+                    println("Score : " + scoreGame);
+                    println();
+                    int n1  = 0;
+                    int n2 = 0;
+                    char operateur = '0';
+                    while (!nombreEstUtilisable(inv, n1)) {                     
+                        print("Sélectionnez un premier nombre : ");
+                        n1 = readInt();
+                    }
+                    utiliserNombre(inv, n1);
+                    while (!signeEstUtilisable(inv, operateur)) {
+                        print("Sélectionnez un opérateur : ");
+                        operateur = readChar();
+                    }
+                    utiliserCarac(inv, operateur);
+                    while (!nombreEstUtilisable(inv, n2)) {
+                        print("Sélectionnez un second nombre : ");
+                        n2 = readInt();
+                    }
+                    utiliserNombre(inv, n2);
+                    for (int i = 0 ; i < 2 ; i++) {
+                        ajouterNombre(nombreRandom(), inv);
+                    }
+                    ajouterSigne(caracRandom(), inv);
+                    Operation opeDgt = creerOperation(n1, operateur, n2);
+                    boss.pv -= opeDgt.result;
+                    if (boss.pv > 0) {
+                        j1.pv -= boss.force;
+                    }
+                    if (boss.pv == 0) {
+                        j1.pv += 30*j1.pv/100;
+                    }    
+                }
+                if (boss.pv <= 0) {
+                    scoreGame++;
+                }
+            }  
+            printEnd(j1);
+            addPlayerLeaderboard(j1);
+            delay(3000);
+            algorithm();
         }
         if (choixMenu == 2) {
             while (choixRegle != 0) {
@@ -59,6 +99,8 @@ class jeu extends Program{
                 println("║     - La partie se termine lorsque le joueur n'a plus de vies   ║");
                 println("║     - Le but est de battre le plus de boss                      ║");  
                 println("║     - Pour infliger du dégât, il faut utiliser l'inventaire*    ║"); 
+                println("║     - Essayez de battre un boss en infligeant pile le nombre de ║"); 
+                println("║       dégats nécessaire pour récupérer des vies !               ║");     
                 println("║                                                                 ║"); 
                 println("║ Inventaire                                                      ║"); 
                 println("║     - L'inventaire possède des nombres et opérateurs aléatoires ║"); 
@@ -86,6 +128,50 @@ class jeu extends Program{
         if (choixBoard == 0 || choixRegle == 0) {
             algorithm();
         }
+    }
+
+    void addPlayerLeaderboard(Joueur j1) {
+        String[][] leaderboard = new String[5][2];
+        for (int i = 0 ; i < rowCount(leaderboardCSV) ; i++) {
+            leaderboard[i][0] = getCell(leaderboardCSV, i, 0);
+            leaderboard[i][1] = getCell(leaderboardCSV, i, 1);
+        }
+        triLeaderboard();
+        int longr = length(leaderboard, 1)-1;
+        int largr = length(leaderboard, 2)-1;
+        if (j1.score > stringToInt(leaderboard[longr][largr])) {
+            String scoreGameFin = "";
+            scoreGameFin += j1.score;
+            leaderboard[longr][0] = j1.pseudo;
+            leaderboard[longr][1] = scoreGameFin;
+        }
+        ///saveCSV(leaderboard);
+    }
+
+    void printEnd(Joueur j1) {
+            clearScreen();
+            cursor(1, 1);
+            print("╔");
+            for (int i = 0 ; i < length(j1.pseudo)+33 ; i++) {
+                print("═");
+            }
+            println("╗");
+            print("║ ");
+            print("Partie terminée ! Score de " + j1.pseudo + " : " + j1.score);
+            println(" ║"); 
+            print("╚");
+            for (int i = 0 ; i < length(j1.pseudo)+33 ; i++) {
+                print("═");
+            }
+            println("╝");
+    }
+
+    Joueur creerJoueur(String pseudo, int pv, int score) {
+        Joueur newJoueur = new Joueur();
+        newJoueur.pseudo = pseudo;
+        newJoueur.pv = pv;
+        newJoueur.score = score;
+        return newJoueur;      
     }
 
     String choixBossRdm() {
@@ -377,7 +463,7 @@ class jeu extends Program{
     void affichageInv(inventaire inv){
         println("╔════════════════════════════════╦════════════════════════════════╗");
         print("║      ");
-        print("Nombres disponibles       ║    Calculateurs disponibles    ");
+        print("Nombres disponibles       ║    Opérateurs disponibles      ");
         println("║");
         println("╠════════════════════════════════╬════════════════════════════════╣");
         print("║       ");
@@ -409,11 +495,11 @@ class jeu extends Program{
     }
     
     boolean signeEstUtilisable(inventaire inv, char car){
-        boolean possible = true;
+        boolean possible = false;
         int i = 0;
-        while(i < length(inv.calc) && possible){
-            if(inv.calc[i].NbUtilisation == 0 && inv.calc[i].car == car){
-                possible = false;
+        while(i < length(inv.calc) && !possible){
+            if(inv.calc[i].NbUtilisation > 0 && inv.calc[i].car == car){
+                possible = true;
             }
             i = i + 1;
         }
@@ -421,11 +507,11 @@ class jeu extends Program{
     }
 
     boolean nombreEstUtilisable(inventaire inv, int car){
-        boolean possible = true;
+        boolean possible = false;
         int i = 0;
-        while(i < length(inv.nb) && possible){ 
-            if(inv.nb[i].NbUtilisation == 0 && inv.nb[i].nombre == car){
-                possible = false;
+        while(i < length(inv.nb) && !possible){ 
+            if(inv.nb[i].NbUtilisation > 0 && inv.nb[i].nombre == car){
+                possible = true;
             }
             i = i + 1;
         }
