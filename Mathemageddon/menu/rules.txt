@@ -1,0 +1,18 @@
+╔═════════════════════════════════════════════════════════════════╗
+║ Règles :                                                        ║
+║                                                                 ║       
+║ Déroulement d'une partie                                        ║
+║     - Les boss s'enchainent aléatoirement                       ║
+║     - La partie se termine lorsque le joueur n'a plus de vies   ║
+║     - Le but est de battre le plus de boss                      ║  
+║     - Pour infliger du dégât, il faut utiliser l'inventaire*    ║
+║     - Essayez de battre un boss en infligeant pile le nombre de ║
+║       dégats nécessaire pour récupérer des vies !               ║   
+║                                                                 ║
+║ Inventaire                                                      ║
+║     - L'inventaire possède des nombres et opérateurs aléatoires ║
+║     - Il faut les combiner afin d'infliger du dégât             ║
+║     - Les nombres et opérateurs utilisés seront remplacés       ║
+║       aléatoirement pour le prochain tour !                     ║
+║                                                                 ║ 
+╚═════════════════════════════════════════════════════════════════╝
