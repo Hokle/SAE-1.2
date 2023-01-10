@@ -3,8 +3,8 @@ import extensions.CSVFile;
 
 class jeu extends Program{
     
-    final int GODMOD_DMGmultiplier = 1;
-    final int GODMOD_HPmultiplier = 1;
+    int GODMOD_DMGmultiplier = 1;
+    int GODMOD_HPmultiplier = 1;
 
     int affichLgth = 0;
     CSVFile bossCSV = loadCSV("./boss/boss.csv");
@@ -14,25 +14,25 @@ class jeu extends Program{
         int choixMenu = 0;
         int choixRegle = 1;
         int choixBoard = 1;
+        int choixGM = 1;
 
-        while(choixMenu == 0 || choixMenu > 3) {
+        while((choixMenu == 0 || choixMenu > 3) && choixMenu != 9) {
             clearScreen();
             cursor(1,1);
             printMenu("main");
             println();
             print("Choisissez une option : ");
-            choixMenu = readInt();
+            String choixMenustr = readString();
+            choixMenu = stringToInti0(choixMenustr);
         }
 
         if (choixMenu == 1) {
-
             print("Insérez votre pseudonyme : ");
             Joueur j1 = creerJoueur(readString(), 100*GODMOD_HPmultiplier, 0);
             inventaire inv = NewInvVide();
             remplissageAleatoire(inv);
             ajouterNombre(nombreRandom(), inv);
             int scoreGame = 0;
-
             while (j1.pv > 0) {
                 String bossSelected = choixBossRdm();
                 Boss boss = creerBoss(bossSelected);
@@ -47,7 +47,8 @@ class jeu extends Program{
                     char operateur = '0';
                     while (!nombreEstUtilisable(inv, n1)) {                     
                         print("Sélectionnez un premier nombre : ");
-                        n1 = readInt();
+                        String n1str = readString();
+                        n1 = stringToInti0(n1str);
                     }
                     utiliserNombre(inv, n1);
                     while (!signeEstUtilisable(inv, operateur)) {
@@ -57,7 +58,8 @@ class jeu extends Program{
                     utiliserCarac(inv, operateur);
                     while (!nombreEstUtilisable(inv, n2)) {
                         print("Sélectionnez un second nombre : ");
-                        n2 = readInt();
+                        String n2str = readString();
+                        n2 = stringToInti0(n2str);
                     }
                     utiliserNombre(inv, n2);
                     for (int i = 0 ; i < 2 ; i++) {
@@ -90,23 +92,48 @@ class jeu extends Program{
                 printMenu("rules");
                 println();
                 print("0 - Retour au menu : ");
-                choixRegle = readInt();
+                String choixReglestr = readString();
+                choixRegle = stringToInti0(choixReglestr);
             }
         }
         if (choixMenu == 3) {
-                while (choixBoard != 0) {
+            while (choixBoard != 0) {
                 clearScreen();
                 cursor(1,1);
                 Leaderboard();
                 println();
                 print("0 - Retour au menu : ");
-                choixBoard = readInt();
+                String choixBoardstr = readString();
+                choixBoard = stringToInti0(choixBoardstr);;
             }
         }
-
-        if (choixBoard == 0 || choixRegle == 0) {
+        if (choixMenu == 9) {
+            clearScreen();
+            cursor(1,1);
+            godmod();
+            println();
+            choixGM = 0;
+        }
+        if (choixBoard == 0 || choixRegle == 0 || choixGM == 0) {
             algorithm();
         }
+    }
+
+    void godmod() {
+        println("Ancien multiplicateur de dégâts : " + GODMOD_DMGmultiplier);
+        print("Nouveau : ");
+        String inputgodmodstr1 = readString();
+        int inputgodmod1 = stringToInti0(inputgodmodstr1);
+        GODMOD_DMGmultiplier = inputgodmod1;
+        println("Ancien multiplicateur de vies : " + GODMOD_HPmultiplier);
+        print("Nouveau : ");
+        String inputgodmodstr2 = readString();
+        int inputgodmod2 = stringToInti0(inputgodmodstr2);
+        GODMOD_DMGmultiplier = inputgodmod1;
+    }
+
+    int stringToInti0(String input) {
+        return (int) charAt(input, 0) - '0';
     }
 
     void printMenu (String page) {
@@ -297,17 +324,13 @@ class jeu extends Program{
         int result = int1;
         if (operateur == '+'){
             result += int2;
-        }
-        if (operateur == '-'){
+        }else if (operateur == '-'){
             result -= int2;
-        }
-        if (operateur == '*'){
+        }else if (operateur == '*'){
             result = result * int2;
-        }
-        if (operateur == '/'){
+        }else if (operateur == '/'){
             result = result / int2;
-        }
-        if (operateur == '%'){
+        }else if (operateur == '%'){
             result = result % int2;
         }
         return result;
