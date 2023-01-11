@@ -1,0 +1,9 @@
+╔══════════════════════════════════════════════════════╗
+║ Bienvenue dans Mathemageddon ! Choisissez une option ║
+║                                                      ║        
+║ 1 - Commencer une partie                             ║
+║ 2 - Règles                                           ║
+║ 3 - Leaderboard                                      ║
+║                                                      ║  
+╚══════════════════════════════════════════════════════╝
+            
